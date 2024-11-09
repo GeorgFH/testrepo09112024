@@ -52,9 +52,9 @@ jobs:
       # Ergänzung: PostgreSQL-Umgebungsvariablen in die Anwendung einspeisen
       - name: Run Tests
         env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/bank_account_test
-          SPRING_DATASOURCE_USERNAME: postgres
-          SPRING_DATASOURCE_PASSWORD: postgres
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/testdb
+          SPRING_DATASOURCE_USERNAME: testuser
+          SPRING_DATASOURCE_PASSWORD: testpass
         run: ./gradlew test
 
   conform:
