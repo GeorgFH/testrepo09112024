@@ -27,6 +27,11 @@ dependencies {
     // implementation 'org.postgresql:postgresql'
     runtimeOnly 'org.postgresql:postgresql'
 
+    testImplementation 'org.mockito:mockito-core:5.0.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.0.0'
+
+
+
 }
 
 tasks.named('test') {
