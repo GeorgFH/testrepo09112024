@@ -1,1 +1,1 @@
-# testrepo09112024
+swm2-ws2024-group-k-accounts
