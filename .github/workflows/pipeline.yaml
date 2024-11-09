@@ -7,13 +7,29 @@ on:
   pull_request:
 
 jobs:
- test:
+  test:
     runs-on: ubuntu-latest
     name: Unit Tests
     strategy:
       max-parallel: 4
       matrix:
         java-version: ["23"]
+
+    # Ergänzung: PostgreSQL-Datenbank als Service
+    services:
+      postgres:
+        image: postgres:15  # PostgreSQL-Version 15
+        env:
+          POSTGRES_USER: testuser       # Benutzername für die Datenbank
+          POSTGRES_PASSWORD: testpass   # Passwort für die Datenbank
+          POSTGRES_DB: testdb           # Name der Datenbank
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U testuser"  # Health-Check für PostgreSQL
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - name: Checkout repository
@@ -30,10 +46,18 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      # Ergänzung: PostgreSQL-Umgebungsvariablen in die Anwendung einspeisen
       - name: Run Tests
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/bank_account_test
+          SPRING_DATASOURCE_USERNAME: postgres
+          SPRING_DATASOURCE_PASSWORD: postgres
         run: ./gradlew test
 
- conform:
+  conform:
     runs-on: ubuntu-latest
     name: Conform
 
@@ -46,7 +70,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
- spectral:
+  spectral:
     name: Spectral Linter
     runs-on: ubuntu-latest
 
@@ -63,7 +87,7 @@ jobs:
           spectral lint 'docs/**/*.yaml' --fail-severity info
           spectral lint 'docs/**/*.yml' --fail-severity info
 
- yamllint:
+  yamllint:
     name: YAMLLint
     runs-on: ubuntu-latest
 
@@ -75,11 +99,10 @@ jobs:
 
       - run: yamllint docs/
 
-
- build:
+  build:
     runs-on: ubuntu-latest
     name: Build and Package Application
-    needs: test  # Optional: Abhängigkeit zum "test" Job
+    needs: test  # Abhängigkeit vom "test"-Job
     strategy:
       max-parallel: 4
       matrix:
@@ -99,6 +122,9 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
 
       - name: Build Jar
         run: ./gradlew bootJar
