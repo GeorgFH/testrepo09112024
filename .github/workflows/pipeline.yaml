@@ -15,7 +15,7 @@ jobs:
       matrix:
         java-version: ["23"]
 
-    # Ergänzung: PostgreSQL-Datenbank als Service
+    # PostgreSQL-Datenbank als Service
     services:
       postgres:
         image: postgres:15  # PostgreSQL-Version 15
@@ -49,13 +49,25 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
-      # Ergänzung: PostgreSQL-Umgebungsvariablen in die Anwendung einspeisen
+      # Debugging: Datenbankverbindung testen
+      - name: Test Database Connection
+        run: |
+          psql -h localhost -U testuser -d testdb -c '\l'
+        env:
+          PGPASSWORD: testpass
+
+      # Unit Tests ausführen
       - name: Run Tests
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/testdb
           SPRING_DATASOURCE_USERNAME: testuser
           SPRING_DATASOURCE_PASSWORD: testpass
         run: ./gradlew test -Dspring.profiles.active=pipeline
+
+      # Debugging: Test-Logs anzeigen
+      - name: Display Test Logs
+        if: failure()  # Nur anzeigen, wenn ein Schritt fehlschlägt
+        run: cat build/reports/tests/test/index.html
 
   conform:
     runs-on: ubuntu-latest
