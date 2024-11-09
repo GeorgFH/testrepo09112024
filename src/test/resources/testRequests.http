@@ -1,0 +1,25 @@
+### Create a new account
+POST http://localhost:8081/account
+Content-Type: application/json
+
+{
+  "ownerName": "Max Musterman",
+  "balance": 100.0
+}
+
+### Get all accounts
+GET http://localhost:8081/account
+
+### Get a specific account by Id
+GET http://localhost:8081/account/K-0001
+
+### Delete a specific account
+DELETE http://localhost:8081/account/K-0001
+
+### Update the balance of a specific bank account
+PUT http://localhost:8081/account/K-0001
+Content-Type: application/json
+
+{
+  "balance": 200.0
+}
